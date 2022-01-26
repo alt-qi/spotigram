@@ -36,9 +36,9 @@ dp = Dispatcher(bot)
 async def welcome(message: types.Message):
     await message.answer(f"Hello, `{message.from_user.full_name}`\!", parse_mode="MarkdownV2")
 
-@dp.message_handler(commands=["auth"])
-async def auth(message: types.Message):
-    ...
+# @dp.message_handler(commands=["auth"])
+# async def auth(message: types.Message):
+#     ...
 
 if __name__ == '__main__':
     executor.start_polling(dp)
