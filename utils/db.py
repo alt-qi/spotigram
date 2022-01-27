@@ -16,8 +16,8 @@ cur = con.cursor()
 def try_to_create_db() -> None:
     try:
         cur.execute("CREATE TABLE auth (user_id INTEGER, token TEXT)")
-    except Exception as e:
-        print(e)
+    except:
+        ...
     con.commit()
 
 def reset_db() -> None:
@@ -31,5 +31,3 @@ def init() -> None:
 def save_auth_token(user_id: int, token: str) -> None:
     cur.execute("INSERT INTO auth VALUES (%s, %s)", (user_id, token))
     con.commit()
-
-init()
