@@ -11,6 +11,9 @@ if not ".env" in os.listdir():
 # Telegram bot token
 bot_token = "INSERT YOUR BOT TOKEN HERE"
 
+# Spotify Application Client ID
+spotify_client_id = "INSERT YOUR SPOTIFY CLIENT ID HERE"
+
 # Database creditionals 
 database = "INSERT DATABASE NAME HERE"
 user = "INSERT DATABASE USER NAME HERE",

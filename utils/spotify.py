@@ -1,10 +1,14 @@
 import random
 from urllib.parse import urlencode, quote
+from dotenv import load_dotenv
 from copy import copy
+from os import getenv
+
+load_dotenv()
 
 redirect_url = "http://localhost:8080/auth?"
 spotify_url = "https://accounts.spotify.com/authorize?"
-client_id = "09f234ad396c4a74aa08b688006258e5"
+client_id = getenv("spotify_client_id")
 
 params = {
     "client_id": client_id,
@@ -20,5 +24,3 @@ def generate_url(token):
     _params = copy(params)
     _params["code"] = generate_token()
     return (spotify_url + urlencode(_params)).replace("%25", "%")
-
-print(generate_url(generate_token()))

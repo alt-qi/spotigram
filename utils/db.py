@@ -1,14 +1,14 @@
 import psycopg2
-import os
+from os import getenv
 from dotenv import load_dotenv
 
 load_dotenv()
 
 db_config = {
-    "database": os.getenv("database"),
-    "user": os.getenv("user"),
-    "password": os.getenv("password"),
-    "port": os.getenv("port")
+    "database": getenv("database"),
+    "user": getenv("user"),
+    "password": getenv("password"),
+    "port": getenv("port")
 }
 con = psycopg2.connect(**db_config)
 cur = con.cursor()
