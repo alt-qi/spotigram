@@ -13,21 +13,28 @@ db_config = {
 con = psycopg2.connect(**db_config)
 cur = con.cursor()
 
-def try_to_create_db() -> None:
+def try_to_create_table() -> None:
     try:
-        cur.execute("CREATE TABLE auth (user_id INTEGER, token TEXT)")
+        cur.execute("CREATE TABLE auth (user_id INTEGER, code TEXT)")
     except:
         ...
     con.commit()
 
-def reset_db() -> None:
+def reset_table() -> None:
     cur.execute("DELETE FROM auth")
     con.commit()
 
 def init() -> None:
-    try_to_create_db()
-    reset_db()
+    try_to_create_table()
+    reset_table()
 
-def save_auth_token(user_id: int, token: str) -> None:
-    cur.execute("INSERT INTO auth VALUES (%s, %s)", (user_id, token))
+def user_exists(user_id: int) -> bool:
+    cur.execute("SELECT EXISTS (SELECT * FROM auth WHERE user_id = %s)", (user_id,))
+    return cur.fetchall()[0][0]
+
+def save_auth_code(user_id: int, code: str) -> None:
+    if not user_exists(user_id):
+        cur.execute("INSERT INTO auth VALUES (%s, %s)", (user_id, code))
+    else:
+        cur.execute("UPDATE auth SET code = %s WHERE user_id = %s", (code, user_id))
     con.commit()
