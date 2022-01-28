@@ -13,7 +13,7 @@ db_config = {
 con = psycopg2.connect(**db_config)
 cur = con.cursor()
 
-def try_to_create_table() -> None:
+def create_table() -> None:
     try:
         cur.execute("CREATE TABLE auth (user_id INTEGER, code TEXT)")
     except:
@@ -25,7 +25,7 @@ def reset_table() -> None:
     con.commit()
 
 def init() -> None:
-    try_to_create_table()
+    create_table()
     reset_table()
 
 def user_exists(user_id: int) -> bool:

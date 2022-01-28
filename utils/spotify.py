@@ -22,5 +22,5 @@ def generate_code(length=10, chars="1234567890abcdefg"):
 
 def generate_url(token):
     _params = copy(params)
-    _params["code"] = token
+    _params["state"] = token
     return (spotify_url + urlencode(_params)).replace("%25", "%")
