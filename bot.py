@@ -1,7 +1,7 @@
 from psycopg2 import OperationalError
 from aiogram import Bot, Dispatcher, executor, types
 from dotenv import load_dotenv
-import utils
+from utils import *
 import os
 
 if not ".env" in os.listdir():
@@ -22,11 +22,11 @@ port = "INSERT DATABASE PORT HERE"
 ''')
         file.close()
         
-    print("I have created a \".env\" file, fill required fields (token and database creditionals) in it, please.")
+    print("I have created a \".env\" file, please fill required fields in it.")
     exit()
 
 try:
-    utils.db.init()
+    db.init()
 except OperationalError:
     print("Failed to connect to database! Please make sure, that database creditionals stored in \".env\" are valid.")
 
@@ -44,9 +44,16 @@ dp = Dispatcher(bot)
 async def welcome(message: types.Message):
     await message.answer(f"Hello, `{message.from_user.full_name}`\!", parse_mode="MarkdownV2")
 
-# @dp.message_handler(commands=["auth"])
-# async def auth(message: types.Message):
-#     await message.answer(f"`{utils.spotify.generate_token()}`", parse_mode="MarkdownV2")
+@dp.message_handler(commands=["generateurl"])
+async def generate_url(message: types.Message):
+    auth_code = spotify.generate_code()
+    keyboard = types.InlineKeyboardMarkup()
+    button = types.InlineKeyboardButton(
+        text="Auth URL",
+        url=spotify.generate_url(auth_code)
+    )
+    keyboard.add(button)
+    await message.answer("Your link is ready!", reply_markup=keyboard)
 
 if __name__ == '__main__':
     executor.start_polling(dp)
