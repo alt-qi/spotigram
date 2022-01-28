@@ -11,8 +11,9 @@ if not ".env" in os.listdir():
 # Telegram bot token
 bot_token = "INSERT YOUR BOT TOKEN HERE"
 
-# Spotify Application Client ID
+# Spotify
 spotify_client_id = "INSERT YOUR SPOTIFY CLIENT ID HERE"
+redirect_url = "http://localhost:8080/auth?"
 
 # Database creditionals 
 database = "INSERT DATABASE NAME HERE"
@@ -53,6 +54,7 @@ async def generate_url(message: types.Message):
         url=spotify.generate_url(auth_code)
     )
     keyboard.add(button)
+    db.save_auth_code(message.from_user.id, auth_code)
     await message.answer("Your link is ready!", reply_markup=keyboard)
 
 if __name__ == '__main__':
