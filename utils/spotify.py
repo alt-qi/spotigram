@@ -17,10 +17,10 @@ params = {
     "scope": "user-read-currently-playing",
 }
 
-def generate_token(length=10, chars="1234567890abcdefg"):
+def generate_code(length=10, chars="1234567890abcdefg"):
     return ''.join([random.choice(chars) for i in range(length)])
 
 def generate_url(token):
     _params = copy(params)
-    _params["code"] = generate_token()
+    _params["code"] = token
     return (spotify_url + urlencode(_params)).replace("%25", "%")
