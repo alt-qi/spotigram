@@ -6,7 +6,7 @@ from os import getenv
 
 load_dotenv()
 
-redirect_url = "http://localhost:8080/auth?"
+redirect_url = getenv("redirect_url")
 spotify_url = "https://accounts.spotify.com/authorize?"
 client_id = getenv("spotify_client_id")
 
