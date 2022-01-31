@@ -44,6 +44,10 @@ def user_token_exists(user_id: int) -> bool:
     cur.execute("SELECT EXISTS (SELECT * FROM spotify_tokens WHERE user_id = %s)", (user_id,))
     return cur.fetchall()[0][0]
 
+def get_spotify_token(user_id: int) -> str:
+    cur.execute("SELECT token FROM spotify_tokens WHERE user_id = %s", (user_id,))
+    return cur.fetchall()[0][0]
+
 def remove_spotify_token(user_id: int) -> None:
     cur.execute("DELETE FROM spotify_tokens WHERE user_id = %s", (user_id,))
     con.commit()

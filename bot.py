@@ -3,6 +3,7 @@ from psycopg2 import OperationalError
 from aiogram import Bot, Dispatcher, executor, types
 from dotenv import load_dotenv
 from utils import *
+import hashlib
 import os
 
 if not ".env" in os.listdir():
@@ -13,7 +14,8 @@ if not ".env" in os.listdir():
 bot_token = "INSERT YOUR BOT TOKEN HERE"
 
 # Spotify
-spotify_client_id = "INSERT YOUR SPOTIFY CLIENT ID HERE"
+spotify_client_id = "INSERT YOUR SPOTIFY APP CLIENT ID HERE"
+spotify_client_secret = "INSERT YOUR SPOTIFY APP CLIENT SECRET HERE"
 redirect_url = "http://localhost:8080/auth?"
 
 # Database creditionals 
@@ -74,9 +76,12 @@ async def logout(message: types.Message):
             "*You are not authorized yet\.*\n\n" \
             "If you want to log in, use /auth", parse_mode="MarkdownV2")
 
-# @dp.inline_handler()
-# async def inline_echo(inline_query: types.InlineQuery):
-#     ...
+@dp.inline_handler()
+async def inline_echo(query: types.InlineQuery):
+    text = query.query or "favorite_tracks"
+    result_id = hashlib.md5(text.encode()).hexdigest()
+    items = spotify.get_recently_played_tracks(query.from_user.id)
+    await query.answer(results=items, cache_time=1)
 
 if __name__ == '__main__':
     executor.start_polling(dp)
