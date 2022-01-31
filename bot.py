@@ -3,8 +3,9 @@ from psycopg2 import OperationalError
 from aiogram import Bot, Dispatcher, executor, types
 from dotenv import load_dotenv
 from utils import *
-import hashlib
+from os import getenv
 import os
+import hashlib
 
 if not ".env" in os.listdir():
     with open(".env", "w+") as file:
@@ -16,7 +17,7 @@ bot_token = "INSERT YOUR BOT TOKEN HERE"
 # Spotify
 spotify_client_id = "INSERT YOUR SPOTIFY APP CLIENT ID HERE"
 spotify_client_secret = "INSERT YOUR SPOTIFY APP CLIENT SECRET HERE"
-redirect_url = "http://localhost:8080/auth?"
+redirect_uri = "http://localhost:8080/auth?"
 
 # Database creditionals 
 database = "INSERT DATABASE NAME HERE"
@@ -42,6 +43,12 @@ except exceptions.ValidationError:
     exit()
 
 dp = Dispatcher(bot)
+spotify = spotify.SpotifyApp(
+    client_id=getenv("spotify_client_id"),
+    client_secret=getenv("spotify_client_secret"),
+    redirect_uri=getenv("redirect_uri"),
+    scopes=["user-read-currently-playing", "user-read-recently-played"]
+)
 
 @dp.message_handler(commands=["start"])
 async def welcome(message: types.Message):
@@ -80,7 +87,17 @@ async def logout(message: types.Message):
 async def inline_echo(query: types.InlineQuery):
     text = query.query or "favorite_tracks"
     result_id = hashlib.md5(text.encode()).hexdigest()
-    items = spotify.get_recently_played_tracks(query.from_user.id)
+    tracks = spotify.get_spotify_client(db.get_spotify_token(query.from_user.id)).get_recently_played_tracks()
+    items = [
+        types.InlineQueryResultAudio(
+            id=spotify.generate_code(), 
+            audio_url=track.preview_audio_url,
+            title=track.title,
+            performer=track.performer,   
+            caption=f"__[Full Track Version]({track.full_version_url})__",
+            parse_mode="MarkdownV2"
+        ) for track in tracks
+    ]
     await query.answer(results=items, cache_time=1)
 
 if __name__ == '__main__':
