@@ -12,7 +12,7 @@ SPOTIFY_URL = "https://accounts.spotify.com/authorize?"
 @dataclass
 class SpotifyTrack:
     """
-    Дата-класс содержит в себе краткую информацию о
+    Этот дата-класс содержит в себе краткую информацию о
     треке Spotify.
     """
     title: str
@@ -22,7 +22,7 @@ class SpotifyTrack:
 
 class SpotifyClient(Spotify):
     """
-    Класс содержит в себе функции для
+    Этот класс содержит в себе функции для
     работы с данными пользователя Spotify.
     """
     def __init__(self, token: str, auth_manager: SpotifyOAuth) -> None:
@@ -48,7 +48,7 @@ class SpotifyClient(Spotify):
 
 class SpotifyApp(SpotifyOAuth):
     """
-    Класс содержит в себе функции, необходимые
+    Этот класс содержит в себе функции, необходимые
     для работы с интеграцией Spotify.
     """
     def __init__(self, client_id: str, client_secret: str,
@@ -59,7 +59,7 @@ class SpotifyApp(SpotifyOAuth):
     @staticmethod
     def generate_code(length=10, chars="1234567890abcdefg") -> str:
         """
-        Сгенерировать случайную последовательность символов.
+        Сгенерировать код для привязки аккаунта Telegram к Spotify.
 
         Args:
             * length (`int`, optional): Длина, с которой нужно сгенерировать строку.
@@ -104,3 +104,5 @@ class SpotifyApp(SpotifyOAuth):
             auth_manager=self
         )
         return client
+
+# TODO: Реализовать обновление токена Spotify

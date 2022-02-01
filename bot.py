@@ -1,6 +1,5 @@
-from asyncio import exceptions
 from psycopg2 import OperationalError
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, executor, types, exceptions
 from dotenv import load_dotenv
 from utils import *
 from os import getenv
@@ -33,8 +32,13 @@ port = "INSERT DATABASE PORT HERE"
 load_dotenv(".env")
 
 try:
-    db.init()
     bot = Bot(os.getenv("bot_token"))
+    db = database.Database(
+        database=getenv("database"),
+        user=getenv("user"),
+        password=getenv("password"),
+        port=getenv("port")
+    )
 except OperationalError:
     print("Failed to connect to database! Please make sure, that database creditionals stored in \".env\" are valid.")
     exit()
@@ -43,7 +47,8 @@ except exceptions.ValidationError:
     exit()
 
 dp = Dispatcher(bot)
-spotify = spotify.SpotifyApp(
+
+spotify_app = spotify.SpotifyApp(
     client_id=getenv("spotify_client_id"),
     client_secret=getenv("spotify_client_secret"),
     redirect_uri=getenv("redirect_uri"),
@@ -56,15 +61,15 @@ async def welcome(message: types.Message):
 
 @dp.message_handler(commands=["auth"])
 async def auth(message: types.Message):
-    if not db.user_token_exists(message.from_user.id):
-        auth_code = spotify.generate_code()
+    if not db.user_has_linked_spotify(message.from_user.id):
+        auth_code = spotify_app.generate_code()
         keyboard = types.InlineKeyboardMarkup()
         button = types.InlineKeyboardButton(
             text="Authorize Spotify",
-            url=spotify.generate_url(auth_code)
+            url=spotify_app.generate_url(auth_code)
         )
         keyboard.add(button)
-        db.save_auth_code(message.from_user.id, auth_code)
+        db.create_associate(message.from_user.id, auth_code)
         await message.answer("Click the button below to log into Spotify\.", reply_markup=keyboard, parse_mode="MarkdownV2")
     else:
         await message.answer(
@@ -73,8 +78,8 @@ async def auth(message: types.Message):
 
 @dp.message_handler(commands=["logout"])
 async def logout(message: types.Message):
-    if db.user_token_exists(message.from_user.id):
-        db.remove_spotify_token(message.from_user.id)
+    if db.user_has_linked_spotify(message.from_user.id):
+        db.remove_user_spotify_token(message.from_user.id)
         await message.answer(
             "*Auth information has been deleted*\.\n\n" \
             "If you want to start using the bot again, you will need to authenticate again with /auth", parse_mode="MarkdownV2")
@@ -87,10 +92,10 @@ async def logout(message: types.Message):
 async def inline_echo(query: types.InlineQuery):
     text = query.query or "favorite_tracks"
     result_id = hashlib.md5(text.encode()).hexdigest()
-    tracks = spotify.get_spotify_client(db.get_spotify_token(query.from_user.id)).get_recently_played_tracks()
+    tracks = spotify_app.get_spotify_client(db.get_user_spotify_token(query.from_user.id)).get_recently_played_tracks()
     items = [
         types.InlineQueryResultAudio(
-            id=spotify.generate_code(), 
+            id=spotify_app.generate_code(), 
             audio_url=track.preview_audio_url,
             title=track.title,
             performer=track.performer,   
